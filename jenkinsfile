@@ -1,29 +1,41 @@
 pipeline {
-//teste
     agent any
 
-    stage('Checkout') {
-        steps {
-            // Esta etapa realiza o checkout do código do repositório
-            checkout scm
-        }
+    // Defina as notificações de eventos para monitorar as alterações no repositório Git
+    triggers {
+        pollSCM('H/5 * * * *') // Poll a cada 5 minutos (ajuste conforme necessário)
     }
 
     stages {
-        stage ('Versão Maven'){
+        stage('Checkout') {
             steps {
-               sh 'mvn --version'
+                // Esta etapa realiza o checkout do código do repositório
+                checkout scm
             }
         }
 
-         stage ('Entrada de diretorio'){
+        stage('Build') {
             steps {
-               dir('/home/lucas/testeJenkins/testeJenkins'){
-                  sh 'mvn clean package'
-               }
+                // Execute os passos de construção aqui
+                sh 'mvn clean package'
             }
         }
 
+        stage('Deploy') {
+            steps {
+                // Execute os passos de deploy aqui (subindo o projeto)
+                // Substitua o comando abaixo com o comando específico para subir seu projeto
+                sh 'java -jar target/testeJenkins-0.0.1-SNAPSHOT.jar &'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'O job foi concluído com sucesso.'
+        }
+        failure {
+            echo 'O job falhou.'
+        }
     }
 }
-

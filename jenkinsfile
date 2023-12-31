@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+
+    stage('Checkout') {
+        steps {
+            // Esta etapa realiza o checkout do código do repositório
+            checkout scm
+        }
+    }
+
+    stages {
+        stage ('Versão Maven'){
+            steps {
+               sh 'mvn --version'
+            }
+        }
+
+         stage ('Entrada de diretorio'){
+            steps {
+               dir('/home/lucas/testeJenkins/testeJenkins'){
+                  sh 'mvn clean package'
+               }
+            }
+        }
+
+    }
+}
+

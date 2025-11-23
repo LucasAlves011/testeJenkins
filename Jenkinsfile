@@ -1,10 +1,15 @@
 pipeline {
-    agent any 
+    agent any // Roda diretamente no nó do Jenkins, sem container
 
     tools {
-        // Configure estes nomes em "Manage Jenkins > Tools" antes de rodar!
+        // Usa os nomes exatos que você configurou no passo anterior
         maven 'maven3' 
         jdk 'jdk17'
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        timestamps()
     }
 
     stages {
@@ -13,16 +18,27 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build') {
+
+        stage('Build & Compile') {
             steps {
-                // Roda usando o Maven configurado no Jenkins
-                sh 'mvn clean package -DskipTests' 
+                // O Jenkins agora sabe onde está o comando 'mvn'
+                sh 'mvn -B -DskipTests clean package'
             }
         }
-        stage('Tests') {
+
+        stage('Unit Tests') {
             steps {
                 sh 'mvn test'
             }
+        }
+    }
+
+    post {
+        always {
+            junit 'target/surefire-reports/*.xml'
+        }
+        success {
+            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
         }
     }
 }

@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    // Defina as notificações de eventos para monitorar as alterações no repositório Git
-    triggers {
-        pollSCM('H/5 * * * *') // Poll a cada 5 minutos (ajuste conforme necessário)
-    }
-
     stages {
         stage('Checkout') {
             steps {
